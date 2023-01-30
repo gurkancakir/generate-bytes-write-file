@@ -26,7 +26,8 @@ public class FileWriter {
                     .limit(limit)
                     .mapToObj(index -> Arrays.copyOfRange(contentInBytes, index, Math.min(contentInBytes.length, index + chunkSize)))
                     .parallel()
-                    .map(bytes -> writeChannel.write(ByteBuffer.wrap(bytes), iterate.getAndIncrement() * chunkSize)).toList();
+                    .map(bytes -> writeChannel.write(ByteBuffer.wrap(bytes), iterate.getAndIncrement() * chunkSize))
+                    .toList();
 
             for (Future<Integer> future : futureList) {
                 try {
