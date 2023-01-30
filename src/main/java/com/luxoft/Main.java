@@ -14,18 +14,9 @@ public class Main {
         RandomByteGenerator randomByteGenerator = new RandomByteGenerator();
         FileWriter fileWriter = new FileWriter();
 
-
-        byte[] contentInBytes = generateAllBytes(randomByteGenerator);
-        fileWriter.writeToFile(contentInBytes, file);
+        int chunkSize = 10_000_000;
+        int totalSize = 100_000_000;
+        fileWriter.writeToFile(file, totalSize, chunkSize, randomByteGenerator);
 
     }
-
-    private static byte[] generateAllBytes(RandomByteGenerator randomByteGenerator) {
-        long startTime = System.nanoTime();
-        byte[] contentInBytes = randomByteGenerator.generate(100_000_000);
-        long stopTime = System.nanoTime();
-        System.out.printf("Generate Time : %2.2f ms \n", (stopTime - startTime) / 1_000_000f);
-        return contentInBytes;
-    }
-
 }
