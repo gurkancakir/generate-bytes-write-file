@@ -24,7 +24,8 @@ public class FileWriter {
                     .limit(limit)
                     .mapToObj(index -> randomByteGenerator.generate(chunkSize))
                     .parallel()
-                    .map(bytes -> writeChannel.write(ByteBuffer.wrap(bytes), iterate.getAndIncrement() * chunkSize)).toList();
+                    .map(bytes -> writeChannel.write(ByteBuffer.wrap(bytes), iterate.getAndIncrement() * chunkSize))
+                    .toList();
 
             System.out.println("Write Future Size : " + futureList.size());
             for (Future<Integer> future : futureList) {
