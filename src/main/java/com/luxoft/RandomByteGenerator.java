@@ -1,7 +1,6 @@
 package com.luxoft;
 
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomByteGenerator {
