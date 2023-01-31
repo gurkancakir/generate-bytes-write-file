@@ -2,7 +2,7 @@
 
 
 #### Benchmark total size fixed 10,000,000, chunk size changed
-```json
+```text
 ================= Execution [totalSize = 100000000, chunkSize = 10000000 ]  =================
 Execution Time [FileWriterV0] :    540.78 ms | Output File : C:\Users\GCakir\AppData\Local\Temp\LUXOFT_GURKAN_CAKIR_8053493130545171391.bin 
 Execution Time [FileWriterV1] :    254.36 ms | Output File : C:\Users\GCakir\AppData\Local\Temp\LUXOFT_GURKAN_CAKIR_18332554976059529050.bin 
