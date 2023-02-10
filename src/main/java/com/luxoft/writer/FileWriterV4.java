@@ -1,6 +1,7 @@
 package com.luxoft.writer;
 
 import com.luxoft.RandomByteGenerator;
+import com.luxoft.seed.SeedGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +30,11 @@ public class FileWriterV4 implements FileWriter {
             int limit = (int) Math.ceil((double) totalSize / chunkSize);
 
             var iterate = new AtomicInteger();
+            var seedGenerator = new SeedGenerator(0, chunkSize);
             List<Future<Integer>> futureList = IntStream.iterate(0, i -> i + chunkSize)
                     .limit(limit)
-                    .mapToObj(index -> randomByteGenerator.generate(chunkSize))
-                    .parallel()
+                    .mapToObj(index -> randomByteGenerator.generateUsingSeed(seedGenerator.next(), chunkSize))
+                    //.parallel()
                     .map(bytes -> writeChannel.write(ByteBuffer.wrap(bytes), iterate.getAndIncrement() * chunkSize))
                     .toList();
 

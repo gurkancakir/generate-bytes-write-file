@@ -11,12 +11,14 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
 
-        //int chunkSize = 10_000_000;
+//        int chunkSize = 10_000_000;
+//        int totalSize = 100_000_000;
+//        runVersion(FileWriterVersion.VERSION_0, totalSize, chunkSize);
+//        runVersion(FileWriterVersion.VERSION_6, totalSize, chunkSize);
+
+
+        int[] chunks = {10_000_000, 1_000_000};
         int totalSize = 100_000_000;
-        //runVersion(FileWriterVersion.VERSION_5, totalSize, chunkSize);
-
-
-        int[] chunks = {10_000_000, 1_000_000, 100_000, 10_000, 1_000};
         for (int chunk : chunks) {
             runAllVersion(totalSize, chunk);
         }

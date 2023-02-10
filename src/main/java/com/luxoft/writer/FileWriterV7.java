@@ -1,6 +1,7 @@
 package com.luxoft.writer;
 
 import com.luxoft.RandomByteGenerator;
+import com.luxoft.seed.SeedGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +33,12 @@ public class FileWriterV7 implements FileWriter {
         try(var writeChannel = AsynchronousFileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE)) {
 
             int limit = (int) Math.ceil((double) totalSize / chunkSize);
+            var seedGenerator = new SeedGenerator(0, chunkSize);
             var futureList = IntStream.iterate(0, i -> i + chunkSize)
                     .limit(limit)
-                    .parallel()
-                    .mapToObj(index -> executorService.submit(new FileWriteRunnable(randomByteGenerator, writeChannel, chunkSize, index)))
+                    .mapToObj(index -> executorService.submit(
+                            new FileWriteRunnable(randomByteGenerator, writeChannel,
+                                    chunkSize, index, seedGenerator.next())))
                     .toList();
 
             for (Future<?> future : futureList) {
@@ -59,18 +62,21 @@ public class FileWriterV7 implements FileWriter {
         private final int chunkSize;
         private final int position;
 
+        private final long startSeed;
+
         public FileWriteRunnable(RandomByteGenerator randomByteGenerator, AsynchronousFileChannel writeChannel,
-                                 int chunkSize, int position) {
+                                 int chunkSize, int position, long startSeed) {
             this.randomByteGenerator = randomByteGenerator;
             this.writeChannel = writeChannel;
             this.chunkSize = chunkSize;
             this.position = position;
+            this.startSeed = startSeed;
         }
 
         @Override
         public void run() {
             try {
-                writeChannel.write(ByteBuffer.wrap(randomByteGenerator.generate(chunkSize)), position).get();
+                writeChannel.write(ByteBuffer.wrap(randomByteGenerator.generateUsingSeed(startSeed, chunkSize)), position).get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

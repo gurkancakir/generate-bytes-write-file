@@ -1,6 +1,8 @@
 package com.luxoft.writer;
 
 import com.luxoft.RandomByteGenerator;
+import com.luxoft.seed.SeedGenerator;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,10 +25,13 @@ public class FileWriterV6 implements FileWriter {
         int numberOfThreads = Runtime.getRuntime().availableProcessors();
         int sizePerThread = totalSize / numberOfThreads;
 
+        var seedGenerator = new SeedGenerator(0, sizePerThread);
+
         try(var writeChannel = AsynchronousFileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE)) {
             Thread[] threads = new Thread[numberOfThreads];
             for (int i = 0; i < numberOfThreads; i++) {
-                threads[i] = new Thread(new FileWriteRunnable(randomByteGenerator, writeChannel, sizePerThread, i * sizePerThread));
+                threads[i] = new Thread(new FileWriteRunnable(randomByteGenerator, writeChannel,
+                        sizePerThread, i * sizePerThread, seedGenerator.next()));
                 threads[i].start();
             }
 
@@ -49,19 +54,21 @@ public class FileWriterV6 implements FileWriter {
         private final AsynchronousFileChannel writeChannel;
         private final int chunkSize;
         private final int position;
+        private final long startSeed;
 
         public FileWriteRunnable(RandomByteGenerator randomByteGenerator, AsynchronousFileChannel writeChannel,
-                                 int chunkSize, int position) {
+                                 int chunkSize, int position, long startSeed) {
             this.randomByteGenerator = randomByteGenerator;
             this.writeChannel = writeChannel;
             this.chunkSize = chunkSize;
             this.position = position;
+            this.startSeed = startSeed;
         }
 
         @Override
         public void run() {
             try {
-                writeChannel.write(ByteBuffer.wrap(randomByteGenerator.generate(chunkSize)), position).get();
+                writeChannel.write(ByteBuffer.wrap(randomByteGenerator.generateUsingSeed(startSeed, chunkSize)), position).get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
